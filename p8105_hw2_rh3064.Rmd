@@ -14,11 +14,59 @@ library(readxl)
 
 # Problem 2
 
-The Mr. Trash Wheel data set is imported using `read_excel`. As the excel file contains multiple sheets of data, the first sheet is red, and a range is provided to only include data and omit figures/graphics and empty cells. This is piped to `janitor::clean_names()` , and then assigned to the tibble mr_trash_wheel.
+The Mr. Trash Wheel data set is imported using `read_excel`. As the excel file contains multiple sheets of data, the first sheet is read, and a range is provided to only include data and omit figures/graphics, empty cells and the final row, which is not dumpster-specific. This is piped to `janitor::clean_names()` .
 
-The `janitor::clean_names()` function is used to convert the column names into snake_case for ease of use later.
+The `janitor::clean_names()` function is used to convert the column names into snake_case for ease of use later. This is piped to `mutate()`.
+
+The `mutate()` function is used to modify the sports_balls column. In this case rounding to the nearest whole numbers and then changing the variable class to integer. It is also used to create a new column, "trash_wheel", which will keep track of the original data source when combined with the professor trash wheel sheet. Finally, the class of year is changed to double from character.
 
 ```{r MrTrashWheel_Import}
-mr_trash_wheel<-read_excel("./Data/Trash Wheel Collection Data.xlsx", 1, range = "A2:N550") %>%
-  janitor::clean_names()
+mr_trash_wheel<-
+  read_excel("./Data/Trash Wheel Collection Data.xlsx", 1, range = "A2:N549") %>%
+  janitor::clean_names() %>%
+  mutate(
+    sports_balls = as.integer(round(sports_balls)),
+    
+    trash_wheel = c("mr"),
+    
+    year = as.double(year)
+  )
+head(mr_trash_wheel)
 ```
+
+This same process is repeated below for professor trash wheel.
+
+```{r ProfTrashWheel_import}
+
+prof_trash_wheel <-
+  read_excel("./Data/Trash Wheel Collection Data.xlsx", 2, range = "A2:M96") %>%
+  janitor::clean_names() %>%
+  mutate(
+    trash_wheel = c("prof")
+  )
+head(prof_trash_wheel)
+```
+
+Finally the data sets are combined using `bind_rows()`. Summary statistics needed are calculated using a series of piped functions to `summarise()` .
+
+```{r Combining_trashWheel_data}
+trash_wheel_tidy <- bind_rows(mr_trash_wheel, prof_trash_wheel)
+
+trash_wheel_tidy %>% 
+ group_by(trash_wheel) %>%
+  summarise(
+    weight_sum = sum(weight_tons),
+  )
+
+trash_wheel_tidy %>%
+  filter(year == 2020) %>%
+  group_by(trash_wheel) %>%
+  summarise(sports_balls_sum = sum(sports_balls))
+
+
+
+```
+
+The data contains `r nrow(trash_wheel_tidy)` observations and `r ncol(trash_wheel_tidy)` variables. Key variables include *dumpster*, which lists the dumpster number, *year* and *date* variables, *weight_tons* (weight collected in tons)and *volume_cubic_yards*. There are also variables the break down the type of trash collected at each instance.
+
+The total weight of trash collected by Professor Trash Wheel is 856 tons. The total number of sports balls collected by Mr. Trash Wheel in 2020 is 856.
