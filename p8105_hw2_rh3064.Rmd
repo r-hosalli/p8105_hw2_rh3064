@@ -1,0 +1,24 @@
+---
+title: "p8105_hw2_rh3064"
+author: "Rahul Hosalli"
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+```{r include=FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+# Problem 1
+
+# Problem 2
+
+The Mr. Trash Wheel data set is imported using `read_excel`. As the excel file contains multiple sheets of data, the first sheet is red, and a range is provided to only include data and omit figures/graphics and empty cells. This is piped to `janitor::clean_names()` , and then assigned to the tibble mr_trash_wheel.
+
+The `janitor::clean_names()` function is used to convert the column names into snake_case for ease of use later.
+
+```{r MrTrashWheel_Import}
+mr_trash_wheel<-read_excel("./Data/Trash Wheel Collection Data.xlsx", 1, range = "A2:N550") %>%
+  janitor::clean_names()
+```
