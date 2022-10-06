@@ -55,7 +55,7 @@ trash_wheel_tidy <- bind_rows(mr_trash_wheel, prof_trash_wheel)
 trash_wheel_tidy %>% 
  group_by(trash_wheel) %>%
   summarise(
-    weight_sum = sum(weight_tons),
+    weight_sum = sum(weight_tons)
   )
 
 trash_wheel_tidy %>%
@@ -69,4 +69,25 @@ trash_wheel_tidy %>%
 
 The data contains `r nrow(trash_wheel_tidy)` observations and `r ncol(trash_wheel_tidy)` variables. Key variables include *dumpster*, which lists the dumpster number, *year* and *date* variables, *weight_tons* (weight collected in tons)and *volume_cubic_yards*. There are also variables the break down the type of trash collected at each instance.
 
-The total weight of trash collected by Professor Trash Wheel is 856 tons. The total number of sports balls collected by Mr. Trash Wheel in 2020 is 856.
+The total weight of trash collected by Professor Trash Wheel is 190 tons. The total number of sports balls collected by Mr. Trash Wheel in 2020 is 856.
+
+# Problem 3
+
+The pols-month data is read in via `read_csv`. `separate()` is used to break the *mon* variable in *year*, *month* and *day*. *month.name* is a built-in constant that contains the English names for the months of the year, starting from January. The *month* variable is first coerced into a numeric vector, allowing it to be used inside the brackets to refer to the corresponding month name (e.g. if the month was 3, it would refer to the third element of *month.name* and be reassigned to 'March').
+
+A new *president* variable is created inside a `mutate()` statement using `case_when()`. The logic inside `case_when()` is only reliant on the *prez_dem* variable as the *prez_gop* variable has a range of values from 0-2 (Ford took office in 1974 after Nixon stepped down, resulting in a value of 2 for Aug-Dec 1974).
+
+Finally, *prez_dem* *prez_gop* and *day* are
+
+```{r}
+pols_month <- read_csv("./Data/fivethirtyeight_datasets/pols-month.csv") %>%
+  separate(mon, into = c("year", "month", "day"), sep = "-") %>%
+  mutate (month = month.name[as.numeric(month)],
+          
+          president = case_when(prez_dem == 1 ~ "dem",
+                               prez_dem == 0 ~"gop") ) %>%
+  select(-prez_dem, -prez_gop, -day)
+
+```
+
+Next, the snp data set is imported and tidied in a similar manner as above.
